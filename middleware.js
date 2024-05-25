@@ -11,7 +11,9 @@ const Middleware = (req) => {
 
   if (pathName.toLowerCase() === "/login") {
     if (cookieData && cookieData?.value) {
-      return NextResponse.redirect("/");
+      return NextResponse.redirect(
+        "https://calendar-api-integration-sigma.vercel.app"
+      );
     }
   }
 
@@ -27,12 +29,16 @@ const Middleware = (req) => {
       let parsedEndTime = parseDateString(endTime);
       if (decoded && parsedBeginningTime > parsedEndTime) {
         req.cookies.has(NEXT_TOKEN) && req.cookies.delete(NEXT_TOKEN);
-        return NextResponse.redirect("/login");
+        return NextResponse.redirect(
+          "https://calendar-api-integration-sigma.vercel.app" + "/login"
+        );
       } else {
         return NextResponse.next();
       }
     } else {
-      return NextResponse.redirect("/login");
+      return NextResponse.redirect(
+        "https://calendar-api-integration-sigma.vercel.app" + "/login"
+      );
     }
   }
   return NextResponse.next();
