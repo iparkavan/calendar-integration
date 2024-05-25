@@ -27,8 +27,8 @@ function Login() {
       toast.error("Please Enter Password");
       return;
     }
-    dispatch(userlogin(user));
     setIsLoading(true);
+    dispatch(userlogin(user));
   };
 
   const handleChange = (event) => {

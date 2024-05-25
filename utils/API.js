@@ -12,7 +12,7 @@ const makeRequest = async (endpoint, data, method = "post") => {
       return result;
     }
   } catch (error) {
-    console.log(endpoint.toUpperCase() + ": ", error.message);
+    // console.log(endpoint.toUpperCase() + ": ", error.message);
     throw new Error(`${endpoint}: ${error.message}`);
   }
 };
