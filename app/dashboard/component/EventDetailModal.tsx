@@ -30,7 +30,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
   const [eventData, setEventData] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  console.log(activeEventModal?.id);
+  // console.log(activeEventModal?.id);
 
   useEffect(() => {
     try {

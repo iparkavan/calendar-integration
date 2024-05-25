@@ -172,7 +172,7 @@ function HeaderSearch() {
           <div className="position-relative headerInput px-3 my-2">
             <input
               onChange={handleChange}
-              variant="outlined"
+              // variant="outlined"
               className="form-control border-1 rouned-2 shadow-sm"
               type="text"
               placeholder="Search your Data"

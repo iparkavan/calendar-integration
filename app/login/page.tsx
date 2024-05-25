@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 function Login() {
   const [user, setUser] = useState({ Useremail: "", Password: "" });
   const loginDetails = useSelector(dashboardSelector);
+  const [isLoading, setIsLoading] = useState(false);
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -27,6 +28,7 @@ function Login() {
       return;
     }
     dispatch(userlogin(user));
+    setIsLoading(true);
   };
 
   const handleChange = (event) => {
@@ -81,7 +83,7 @@ function Login() {
                 onClick={handleLogin}
                 className="btn btn-blue w-100 btn-lg fs-5 h-auto"
               >
-                Login
+                {isLoading ? "Loggin In...." : "Log In"}
               </button>
             </div>
           </div>

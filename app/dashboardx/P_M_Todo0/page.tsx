@@ -1,5 +1,11 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useDispatch } from "react-redux";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale";
@@ -116,10 +122,12 @@ export default function P_M_Todo0() {
   const handleSelectSlot = (event: any) => {
     if (typeof event.start === "string") {
       event.start = new Date(event.start);
+      console.log(event.start);
     }
 
     if (typeof event.end === "string") {
       event.end = new Date(event.end);
+      console.log(event.end);
     }
 
     setActiveEventModal(event);
@@ -136,6 +144,8 @@ export default function P_M_Todo0() {
   // Custom Event Component
   const CustomEvent = ({ event }: any) => {
     const lookup = {};
+    console.log("events", events);
+    console.log("EVent", event.start);
 
     for (let date of events) {
       lookup[format(date?.start, "yyyy-MM-dd")]
@@ -143,13 +153,15 @@ export default function P_M_Todo0() {
         : (lookup[format(date?.start, "yyyy-MM-dd")] = 1);
     }
 
-    let count: number;
+    // let count: number;
 
-    Object.entries(lookup).map((event) => {
-      count = event[1];
-    });
+    let count = lookup[format(event.start, "yyyy-MM-dd")] || 0;
 
-    // console.log("LOOKUP", count);
+    // Object.entries(lookup).map((event) => {
+    //   count = event[1];
+    // });
+
+    console.log("LOOKUP", lookup);
     return (
       <div className="calendarTopSection ">
         {count >= 2 && (
@@ -180,6 +192,42 @@ export default function P_M_Todo0() {
           const { data } = await axios.get(
             `http://192.168.3.23:8000/calendar_app/api/calendar?from_date=${selectedYear}-${selectedMonth}-01&to_date=${selectedYear}-${selectedMonth}-30`
           );
+          const dataEvents = data.map(
+            (item: {
+              id: any;
+              start: string | number | Date;
+              end: string | number | Date;
+              desc: any;
+            }) => ({
+              start: new Date(item.start),
+              end: new Date(item.end),
+              title: item.desc,
+              data: item,
+              id: item.id,
+            })
+          );
+          setEvents(dataEvents);
+        };
+        fetchEvents();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }, [selectedMonth, selectedYear]);
+
+  const onRangeChange = useCallback(
+    (range: { start: number | Date; end: number | Date }) => {
+      // window.alert(buildMessage(range))
+      // console.log(range);
+      const formatStartDate = format(range?.start, "yyyy-MM-dd");
+      const formatEndDate = format(range?.end, "yyyy-MM-dd");
+
+      try {
+        // if (selectedMonth && selectedYear) {
+        const fetchEvents = async () => {
+          const { data } = await axios.get(
+            `http://192.168.3.23:8000/calendar_app/api/calendar?from_date=${formatStartDate}&to_date=${formatEndDate}`
+          );
 
           const dataEvents = data.map(
             (item: {
@@ -199,11 +247,13 @@ export default function P_M_Todo0() {
           setEvents(dataEvents);
         };
         fetchEvents();
+        // }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-    }
-  }, [selectedMonth, selectedYear]);
+    },
+    []
+  );
 
   return (
     <section className="">
@@ -285,10 +335,12 @@ export default function P_M_Todo0() {
                   // formats={{
                   //   dayFormat: "EEEE", // day labels
                   // }}
+                  showAllEvents={true}
                   formats={formats}
                   defaultDate={defaultDate}
                   onSelectSlot={handleSelectSlot}
                   onSelectEvent={handleSelect}
+                  onRangeChange={onRangeChange}
                 />
               </div>
             </div>
