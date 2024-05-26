@@ -6,12 +6,12 @@ import { parseDateString } from "@/utils";
 const Middleware = (req) => {
   let NEXT_TOKEN = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
   const cookieData = req.cookies.get(NEXT_TOKEN);
-  console.log("nothing",cookieData)
+  console.log("nothing", cookieData);
   const pathName = req.nextUrl.pathname;
 
   if (pathName.toLowerCase() === "/login") {
     if (cookieData && cookieData?.value) {
-      return NextResponse.redirect("http://localhost:3000");
+      return NextResponse.redirect("/");
     }
   }
 
@@ -27,12 +27,12 @@ const Middleware = (req) => {
       let parsedEndTime = parseDateString(endTime);
       if (decoded && parsedBeginningTime > parsedEndTime) {
         req.cookies.has(NEXT_TOKEN) && req.cookies.delete(NEXT_TOKEN);
-        return NextResponse.redirect("http://localhost:3000" + "/login");
+        return NextResponse.redirect("/login");
       } else {
         return NextResponse.next();
       }
     } else {
-      return NextResponse.redirect("http://localhost:3000" + "/login");
+      return NextResponse.redirect("/login");
     }
   }
   return NextResponse.next();
