@@ -11,7 +11,7 @@ const Middleware = (req) => {
 
   if (pathName.toLowerCase() === "/login") {
     if (cookieData && cookieData?.value) {
-      return NextResponse.redirect("/");
+      return NextResponse.redirect(new URL("/", req.url));
     }
   }
 
@@ -27,12 +27,12 @@ const Middleware = (req) => {
       let parsedEndTime = parseDateString(endTime);
       if (decoded && parsedBeginningTime > parsedEndTime) {
         req.cookies.has(NEXT_TOKEN) && req.cookies.delete(NEXT_TOKEN);
-        return NextResponse.redirect("/login");
+        return NextResponse.redirect(new URL("/login", req.url));
       } else {
         return NextResponse.next();
       }
     } else {
-      return NextResponse.redirect("/login");
+      return NextResponse.redirect(new URL("/login", req.url));
     }
   }
   return NextResponse.next();
