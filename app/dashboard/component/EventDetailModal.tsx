@@ -36,7 +36,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
     try {
       const fetchEvent = async () => {
         const { data } = await axios.get(
-          `http://192.168.3.23:8000/calendar_app/api/calendar_meeting?id=${activeEventModal?.id}`
+          `http://52.35.66.255:8000/calendar_app/api/calendar_meeting?id=${activeEventModal?.id}`
         );
 
         setEventData(data);

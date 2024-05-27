@@ -15,6 +15,8 @@ import {
   Calendar,
   momentLocalizer,
   dateFnsLocalizer,
+  Views,
+  Week,
 } from "react-big-calendar";
 
 import "./style.css";
@@ -53,8 +55,12 @@ export default function P_M_Todo0() {
   const [selectedYear, setSelectedYear] = useState("");
   const [activeEventModal, setActiveEventModal] = useState();
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [view, setView] = useState(Views.MONTH);
+
   // const [events, setEvents] = useState(myEventsList);
   const [events, setEvents] = useState([]);
+
+  const onView = useCallback((newView) => setView(newView), [setView]);
 
   // const closeSearchRef = useRef<HTMLDivElement>(null);
 
@@ -144,8 +150,7 @@ export default function P_M_Todo0() {
   // Custom Event Component
   const CustomEvent = ({ event }: any) => {
     const lookup = {};
-    console.log("events", events);
-    console.log("EVent", event.start);
+
 
     for (let date of events) {
       lookup[format(date?.start, "yyyy-MM-dd")]
@@ -153,19 +158,17 @@ export default function P_M_Todo0() {
         : (lookup[format(date?.start, "yyyy-MM-dd")] = 1);
     }
 
-    // let count: number;
 
     let count = lookup[format(event.start, "yyyy-MM-dd")] || 0;
 
-    // Object.entries(lookup).map((event) => {
-    //   count = event[1];
-    // });
 
-    console.log("LOOKUP", lookup);
     return (
-      <div className="calendarTopSection ">
+      <div className="calendarTopSection">
         {count >= 2 && (
-          <div className="bg-[#ffce47] absolute -top-2 -right-2 rounded-full w-5 h-5 items-center flex justify-center z-100 text-black text-sm ">
+          <div
+            className="bg-[#ffce47] absolute -top-2 -right-2 rounded-full w-5 h-5 items-center flex justify-center z-100 text-black text-sm"
+            onClick={() => setView(Views.DAY)}
+          >
             {count}
           </div>
         )}
@@ -190,7 +193,7 @@ export default function P_M_Todo0() {
       if (selectedMonth && selectedYear) {
         const fetchEvents = async () => {
           const { data } = await axios.get(
-            `http://192.168.3.23:8000/calendar_app/api/calendar?from_date=${selectedYear}-${selectedMonth}-01&to_date=${selectedYear}-${selectedMonth}-30`
+            `http://52.35.66.255:8000/calendar_app/api/calendar?from_date=${selectedYear}-${selectedMonth}-01&to_date=${selectedYear}-${selectedMonth}-30`
           );
           const dataEvents = data.map(
             (item: {
@@ -226,7 +229,7 @@ export default function P_M_Todo0() {
         // if (selectedMonth && selectedYear) {
         const fetchEvents = async () => {
           const { data } = await axios.get(
-            `http://192.168.3.23:8000/calendar_app/api/calendar?from_date=${formatStartDate}&to_date=${formatEndDate}`
+            `http://52.35.66.255:8000/calendar_app/api/calendar?from_date=${formatStartDate}&to_date=${formatEndDate}`
           );
 
           const dataEvents = data.map(
@@ -330,11 +333,13 @@ export default function P_M_Todo0() {
                   // defaultView={"week"}
                   timeslots={4} // number of per section
                   step={15}
+                  onView={onView}
                   views={{ month: true, week: true, day: true }} // Show only month, week, and day views
                   components={{ event: CustomEvent }}
                   // formats={{
                   //   dayFormat: "EEEE", // day labels
                   // }}
+                  view={view}
                   showAllEvents={true}
                   formats={formats}
                   defaultDate={defaultDate}
