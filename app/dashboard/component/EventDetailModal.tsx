@@ -117,7 +117,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 <p className="font-semibold">Interview View Google Meet</p>
                 <a
                   className="p-3 border-blue-500 border-2 rounded-md flex items-center justify-between"
-                  href={`http://192.168.3.23:8000/${eventData?.user_det?.candidate?.candidate_resume}`}
+                  href={`http://52.35.66.255:8000/${eventData?.user_det?.candidate?.candidate_resume}`}
                   target="_blank"
                 >
                   <p className="text-blue-500">Resume.doc</p>
