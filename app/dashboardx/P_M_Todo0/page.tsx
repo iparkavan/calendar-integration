@@ -28,6 +28,9 @@ import { start } from "repl";
 import googleMeet from "../../../public/image/google-meet-logo.png";
 import Image from "next/image";
 import { EventDetailModal } from "@/app/dashboard/component/EventDetailModal";
+import moment from "moment";
+import { rename } from "fs";
+import DisplayMultipleEvents from "@/app/dashboard/component/display-events";
 
 const locales = {
   "en-US": enUS,
@@ -55,12 +58,23 @@ export default function P_M_Todo0() {
   const [selectedYear, setSelectedYear] = useState("");
   const [activeEventModal, setActiveEventModal] = useState();
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [showMoreEvents, setShowMoreEvents] = useState([]);
   const [view, setView] = useState(Views.MONTH);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  // const [count, setCount] = useState(0);
 
   // const [events, setEvents] = useState(myEventsList);
   const [events, setEvents] = useState([]);
 
-  const onView = useCallback((newView) => setView(newView), [setView]);
+  const onView = useCallback(
+    (newView) => setView(newView),
+    [setView]
+  );
+  const handleNavigate = useCallback(
+    (newDate) => setCurrentDate(newDate),
+    [setCurrentDate]
+  );
 
   // const closeSearchRef = useRef<HTMLDivElement>(null);
 
@@ -125,32 +139,49 @@ export default function P_M_Todo0() {
     setSelectedYear(e.target.value);
   };
 
-  const handleSelectSlot = (event: any) => {
-    if (typeof event.start === "string") {
-      event.start = new Date(event.start);
-      console.log(event.start);
-    }
+  // const handleSelectSlot = (event: any) => {
+  //   if (typeof event.start === "string") {
+  //     event.start = new Date(event.start);
+  //     console.log(event.start);
+  //   }
 
-    if (typeof event.end === "string") {
-      event.end = new Date(event.end);
-      console.log(event.end);
-    }
+  //   if (typeof event.end === "string") {
+  //     event.end = new Date(event.end);
+  //     console.log(event.end);
+  //   }
 
-    setActiveEventModal(event);
-  };
+  //   setActiveEventModal(event);
+  // };
 
-  const handleSelect = (event: any, e: { clientX: any; clientY: any }) => {
-    const { start, end } = event;
-    console.log("days", start, end);
-    // console.log(event);
-    setActiveEventModal(event);
-    setPosition({ x: e.clientX, y: e.clientY });
-  };
+  const handleShowMore = useCallback((events: any, date: any) => {
+    console.log("ours", events, date);
+    setSelectedDate(date);
+    setShowMoreEvents(events);
+  }, []);
 
-  // Custom Event Component
-  const CustomEvent = ({ event }: any) => {
+  const { messages } = useMemo(
+    () => ({
+      defaultDate: new Date(2015, 3, 13),
+      messages: {
+        week: "Week",
+        // work_week: "Semana de trabajo",
+        day: "Day",
+        month: "Month",
+        previous: "Previous",
+        next: "Next",
+        today: "Today",
+        agenda: "Agenda",
+
+        // showMore: (total: any) => `+${total} More`,
+        showMore: (total: any, remainingEvents: any, events: any) =>
+          `+${total} More`,
+      },
+    }),
+    []
+  );
+
+  const getEventsCounts = (events, event) => {
     const lookup = {};
-
 
     for (let date of events) {
       lookup[format(date?.start, "yyyy-MM-dd")]
@@ -158,27 +189,71 @@ export default function P_M_Todo0() {
         : (lookup[format(date?.start, "yyyy-MM-dd")] = 1);
     }
 
-
     let count = lookup[format(event.start, "yyyy-MM-dd")] || 0;
 
+    return count;
+  };
+
+  const handleSelect = (event: any, e: { clientX: any; clientY: any }) => {
+    const { start, end } = event;
+
+    const count = getEventsCounts(events, event);
+
+    // if (count < 2) {
+      setActiveEventModal(event);
+    // }
+
+    setPosition({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleOnDrillDown = useCallback(
+    (newDate) => {
+      setCurrentDate(newDate);
+      setView(Views.DAY);
+    },
+    [setCurrentDate, setView]
+  );
+
+  // Custom Event Component
+  const CustomEvent = ({ event }: any) => {
+    const count = getEventsCounts(events, event);
+
+    let title;
+    if (event.title.length >= 20) {
+      title = `${event.title.substring(0, 18)}...`;
+    } else {
+      title = event.title;
+    }
+
+    const selectedDateEvents = events.filter(
+      (item) =>
+        format(item?.start, "yyyy-MM-dd") === format(event?.start, "yyyy-MM-dd")
+    );
 
     return (
-      <div className="calendarTopSection">
-        {count >= 2 && (
+      <div
+        className={`bg-white ${
+          selectedDate ? "" : "absolute"
+        }  drop-shadow-md p-[10px] ${view === "month" ? "w-[170px]" : "w-[145px]"} rounded-md border-l-[20px] border-[#0A66C2]`}
+        // className="bg-white"
+      >
+        {count >= 2 && view === "month" && (
           <div
-            className="bg-[#ffce47] absolute -top-2 -right-2 rounded-full w-5 h-5 items-center flex justify-center z-100 text-black text-sm"
-            onClick={() => setView(Views.DAY)}
+            className={`bg-[#ffce47] ${
+              selectedDate  ? "hidden" : ""
+            }  absolute z-100 -top-2 -right-2 rounded-full w-5 h-5 items-center flex justify-center z-100 text-black text-sm`}
+            onClick={() => {
+              handleShowMore(selectedDateEvents, event.start);
+              handleOnDrillDown(event.start);
+            }}
           >
             {count}
           </div>
         )}
 
-        {/* {count >= 2 && ? (
-          
-        )} */}
         <ul className="">
           <li className="font-bold text-xs group-hover:text-white">
-            {event.title}
+            {event?.data?.user_det?.job_id?.jobRequest_Title}
           </li>
           <li className="text-xs group-hover:text-white">
             {event.start.toLocaleString()}
@@ -193,7 +268,7 @@ export default function P_M_Todo0() {
       if (selectedMonth && selectedYear) {
         const fetchEvents = async () => {
           const { data } = await axios.get(
-            `http://52.35.66.255:8000/calendar_app/api/calendar?from_date=${selectedYear}-${selectedMonth}-01&to_date=${selectedYear}-${selectedMonth}-30`
+            `http://192.168.3.23:8000/calendar_app/api/calendar?from_date=${selectedYear}-${selectedMonth}-01&to_date=${selectedYear}-${selectedMonth}-30`
           );
           const dataEvents = data.map(
             (item: {
@@ -229,7 +304,7 @@ export default function P_M_Todo0() {
         // if (selectedMonth && selectedYear) {
         const fetchEvents = async () => {
           const { data } = await axios.get(
-            `http://52.35.66.255:8000/calendar_app/api/calendar?from_date=${formatStartDate}&to_date=${formatEndDate}`
+            `http://192.168.3.23:8000/calendar_app/api/calendar?from_date=${formatStartDate}&to_date=${formatEndDate}`
           );
 
           const dataEvents = data.map(
@@ -324,28 +399,29 @@ export default function P_M_Todo0() {
               >
                 <Calendar
                   startAccessor="start"
-                  className="TodoDataTable"
                   selectable
                   localizer={localizer}
                   events={events}
                   endAccessor="end"
                   style={{ height: 600 }}
-                  // defaultView={"week"}
-                  timeslots={4} // number of per section
-                  step={15}
+                  // timeslots={4} // number of per section
+                  // step={15}
                   onView={onView}
                   views={{ month: true, week: true, day: true }} // Show only month, week, and day views
                   components={{ event: CustomEvent }}
-                  // formats={{
-                  //   dayFormat: "EEEE", // day labels
-                  // }}
                   view={view}
-                  showAllEvents={true}
                   formats={formats}
                   defaultDate={defaultDate}
-                  onSelectSlot={handleSelectSlot}
+                  // onSelectSlot={handleSelectSlot}
                   onSelectEvent={handleSelect}
                   onRangeChange={onRangeChange}
+                  // onShowMore={handleShowMore}
+                  onNavigate={handleNavigate}
+                  // popup={true}
+                  doShowMoreDrillDown={false}
+                  onDrillDown={handleOnDrillDown}
+                  date={currentDate}
+                  messages={messages}
                 />
               </div>
             </div>
@@ -360,6 +436,21 @@ export default function P_M_Todo0() {
           position={position}
           setPosition={setPosition}
         />
+      )}
+      {selectedDate && (
+        <div
+          className="fixed flex flex-col gap-4 items-center justify-center top-0 left-0 w-full h-full bg-white/90 z-10 backdrop-blur-sm transition-all duration-200"
+          onClick={() => setSelectedDate(null)}
+        >
+          {showMoreEvents.map((event) => (
+            <CustomEvent
+              event={event}
+              setView={setView}
+              setSelectedDate={setSelectedDate}
+              handleNavigate={handleNavigate}
+            />
+          ))}
+        </div>
       )}
     </section>
   );

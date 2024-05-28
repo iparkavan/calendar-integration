@@ -3,9 +3,33 @@
   background: none;
 }
 
-.rbc-calendar {
+/* .rbc-calendar {
   background-color: #fafbfc;
   padding: 10px;
+} */
+
+.rbc-allday-cell {
+  display: none;
+
+}
+
+
+
+.rbc-time-slot {
+  color: #0a66c2;
+  z-index: 1;
+}
+
+.rbc-event,
+.rbc-background-event {
+  z-index: 2;
+  padding: 0px !important;
+  /* width: 100%; */
+  /* background-color: white; */
+}
+
+.rbc-event-container {
+  max-width: 90% !important;
 }
 
 /* .css-nbv3vr-MuiResponsiveChart-container {
@@ -16,6 +40,8 @@
 /* .TodoDataTable .rbc-label {
   color: var(--royalBlue);
 } */
+
+
 .todoHeadingSelect .month-year-picker {
   box-shadow: 0px 0px 10px 0px rgb(194, 194, 194);
   color: var(--royalBlue);
@@ -68,7 +94,13 @@
     background-color: transparent !important;
     padding: 10px !important;
     color: #000 !important;
+    /* border: none !important; */
 }
+
+/* .rbc-background-event {
+  padding: 0px;
+  border: none !important
+} */
 
 
 .rbc-day-slot .rbc-event-label{
